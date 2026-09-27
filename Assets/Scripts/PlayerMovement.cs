@@ -1,10 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMovement : MonoBehaviour
 {
     //player attributes
@@ -20,13 +16,11 @@ public class PlayerMovement : MonoBehaviour
 
     private event EventHandler OnJumpAction;
 
-    private float coyoteTime = 0.2f;
+    [SerializeField] private float coyoteTime = 0.2f;
     private float coyoteTimeCounter;
 
-    private float jumpBufferTime = 0.2f;
+    [SerializeField] private float jumpBufferTime = 0.2f;
     private float jumpBufferCounter;
-
-    public GameObject shadow;
 
     // Start is called before the first frame update
     private void Awake()
@@ -36,28 +30,23 @@ public class PlayerMovement : MonoBehaviour
         playerInput.Enable();
         playerInput.Player.Jump.performed += Jump_performed;
         OnJumpAction += PlayerMovement_OnJumpAction;
-
     }
-
 
     // Update is called once per frame
     private void Update()
     {
-
         HandleJump();
         Move(playerInput.Player.Move.ReadValue<Vector2>());
     }
 
     private void Move(Vector2 inputVector)
     {
-        rb.velocity += moveSpeed * Time.deltaTime * inputVector;
+        transform.position += moveSpeed * Time.deltaTime * new Vector3 (inputVector.x, inputVector.y);
     }
 
     private void PlayerMovement_OnJumpAction(object sender, EventArgs e)
     {
         UpdateJumpBuffer();
-      
-       
     }
 
     private void Jump_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
@@ -77,10 +66,8 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpHeight);
             jumpBufferCounter = 0;
-            Instantiate(shadow, transform.position, transform.rotation);
         }
     }
-
     private void UpdateCoyoteTime()
     {
         if (IsGrounded())
@@ -97,14 +84,10 @@ public class PlayerMovement : MonoBehaviour
             coyoteTimeCounter = 0;
         }
     }
-
     private void UpdateJumpBuffer()
     {
         jumpBufferCounter = jumpBufferTime;
-
-
     }
-
     private bool IsGrounded()
     {
         bool isGrounded = Physics2D.OverlapCircle(pointOfGroundContact.position, groundCheckRadius, groundLayer);
